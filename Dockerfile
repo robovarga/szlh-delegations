@@ -1,9 +1,10 @@
 #FROM golang:1.12-alpine AS builder-env
 FROM golang:1.12 AS builder-env
 
-WORKDIR /app
+ENV CGO_ENABLED 0
+ENV GOBIN /usr/local/bin/
 
-#RUN apk add --no-cache git
+WORKDIR /app
 
 ADD ./cmd ./cmd
 ADD ./internal ./internal
@@ -12,18 +13,15 @@ ADD ./go.sum .
 
 RUN go mod vendor
 
-ENV CGO_ENABLED 0
-ENV GOBIN /usr/local/bin/
-
 RUN go get github.com/google/wire/cmd/wire
 RUN wire ./internal
 
 RUN go install -a ./...
 
 
-
 FROM alpine:latest
 
 COPY --from=builder-env /usr/local/bin/web .
+COPY --from=builder-env /usr/local/bin/parser .
 
 CMD ["./web"]

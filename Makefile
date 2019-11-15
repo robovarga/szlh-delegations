@@ -1,5 +1,3 @@
-.DEFAULT_GOAL := build
-
 build:
 	docker build -t delegacky .
 
