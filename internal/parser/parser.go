@@ -28,6 +28,8 @@ func NewParser(referees *repository.RefereesRepository, games *repository.GamesR
 
 func (p *Parser) Parse(body []byte) (games []*entity.Game) {
 
+	log.Println("start parsing body")
+
 	data := bytes.NewReader(body)
 
 	doc, err := goquery.NewDocumentFromReader(data)
@@ -63,8 +65,16 @@ func (p *Parser) Parse(body []byte) (games []*entity.Game) {
 
 					game.SetVenue(strings.TrimSpace(infos[1]))
 
-					timezone, _ := time.LoadLocation("Europe/Prague")
-					gameDate, _ := time.ParseInLocation("02.01.2006 15:04", gameDate+" "+strings.TrimSpace(infos[0]), timezone)
+					timezone, err := time.LoadLocation("Europe/Warsaw")
+					if err != nil {
+						log.Println("ERROR:", err)
+					}
+
+					gameDate, err := time.ParseInLocation("02.01.2006 15:04", gameDate+" "+strings.TrimSpace(infos[0]), timezone)
+					if err != nil {
+						log.Println("ERROR:", err)
+					}
+
 					game.SetDate(gameDate)
 				}
 				if columnHtml.Index() == 3 {
@@ -80,8 +90,12 @@ func (p *Parser) Parse(body []byte) (games []*entity.Game) {
 
 		})
 
+		log.Println("Parsed Game:", game.ExternalID())
+
 		games = append(games, game)
 	})
+
+	log.Println("finish parsing body")
 
 	return games
 }

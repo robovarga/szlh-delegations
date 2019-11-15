@@ -1,6 +1,8 @@
 package server
 
 import (
+	"log"
+
 	"github.com/robovarga/szlh-delegations/internal/parser"
 	"github.com/robovarga/szlh-delegations/internal/repository"
 	"github.com/robovarga/szlh-delegations/internal/scraper"
@@ -20,10 +22,14 @@ func NewServer(scraper *scraper.Scraper, parser *parser.Parser, gamesRepository 
 
 func (s *Server) Handle() error {
 
+	log.Println("Start fetching")
+
 	data, err := s.scraper.Scrape()
 	if err != nil {
 		return err
 	}
+
+	log.Println("Finish Fetching")
 
 	games := s.parser.Parse(data)
 

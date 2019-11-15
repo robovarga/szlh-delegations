@@ -14,7 +14,7 @@ func NewScraper() *Scraper {
 
 func (s *Scraper) Scrape() ([]byte, error) {
 	client := http.Client{}
-	resp, err := client.Get("https://www.hockeyslovakia.sk/sk/stats/delegation-lists/204")
+	resp, err := client.Get("http://www.hockeyslovakia.sk/sk/stats/delegation-lists/204")
 	if err != nil {
 		log.Fatal(err)
 	}
