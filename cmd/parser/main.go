@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 
 	"github.com/robovarga/szlh-delegations/internal"
@@ -18,9 +17,11 @@ func main() {
 		dbConfig = config.NewPostgresConfig(dbDriver, dbURI)
 	)
 
+	log := config.NewLogger()
+
 	log.Println("started app")
 
-	server, err := internal.InitializeApp(dbConfig)
+	server, err := internal.InitializeApp(dbConfig, log)
 	if err != nil {
 		panic(err)
 	}

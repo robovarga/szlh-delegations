@@ -1,7 +1,7 @@
 package server
 
 import (
-	"log"
+	"github.com/sirupsen/logrus"
 
 	"github.com/robovarga/szlh-delegations/internal/parser"
 	"github.com/robovarga/szlh-delegations/internal/repository"
@@ -10,28 +10,40 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
+const listID = 208
+
 type Server struct {
 	scraper *scraper.Scraper
 	parser  *parser.Parser
 	games   *repository.GamesRepository
+	logger  *logrus.Logger
 }
 
-func NewServer(scraper *scraper.Scraper, parser *parser.Parser, gamesRepository *repository.GamesRepository) *Server {
-	return &Server{scraper, parser, gamesRepository}
+func NewServer(scraper *scraper.Scraper,
+	parser *parser.Parser,
+	gamesRepository *repository.GamesRepository,
+	logger *logrus.Logger) *Server {
+
+	return &Server{
+		scraper,
+		parser,
+		gamesRepository,
+		logger,
+	}
 }
 
 func (s *Server) Handle() error {
 
-	log.Println("Start fetching")
+	s.logger.Println("Start fetching")
 
-	data, err := s.scraper.Scrape()
+	data, err := s.scraper.Scrape(listID)
 	if err != nil {
 		return err
 	}
 
-	log.Println("Finish Fetching")
+	s.logger.Println("Finish Fetching")
 
-	games := s.parser.Parse(data)
+	games := s.parser.Parse(listID, data)
 
 	for _, game := range games {
 		err = s.games.Insert(game)

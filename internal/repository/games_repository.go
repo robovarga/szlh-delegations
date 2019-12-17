@@ -15,9 +15,18 @@ func NewGamesRepository(conn *sql.DB) *GamesRepository {
 }
 
 func (repo *GamesRepository) Insert(game *entity.Game) error {
-	query := `INSERT INTO games (home, away, external_id, venue, date) VALUES ($1, $2, $3, $4, $5);`
+	query := `INSERT INTO games (game_id, home_team, away_team, external_id, list_id, venue, game_date)
+		VALUES (?, ?, ?, ?, ?, ?, ?);`
 
-	_, err := repo.conn.Exec(query, game.Home(), game.Away(), game.ExternalID(), game.Venue(), game.Date())
+	_, err := repo.conn.Exec(query,
+		game.ID(),
+		game.Home(),
+		game.Away(),
+		game.List().ListID(),
+		game.ExternalID(),
+		game.Venue(),
+		game.Date(),
+	)
 
 	return err
 }

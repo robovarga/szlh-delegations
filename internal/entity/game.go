@@ -9,6 +9,7 @@ import (
 type Game struct {
 	gameID     uuid.UUID
 	externalID int
+	listID     *List
 	home       string
 	away       string
 	venue      string
@@ -64,4 +65,12 @@ func (g *Game) ExternalID() int {
 
 func (g *Game) SetExternalID(externalID int) {
 	g.externalID = externalID
+}
+
+func (g *Game) List() *List {
+	return g.listID
+}
+
+func (g *Game) SetList(listID *List) {
+	g.listID = listID
 }

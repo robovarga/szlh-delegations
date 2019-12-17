@@ -1,5 +1,4 @@
 FROM golang:1.12-alpine AS builder-env
-#FROM golang:1.12 AS builder-env
 
 RUN apk --no-cache add ca-certificates git
 

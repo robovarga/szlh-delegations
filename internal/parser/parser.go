@@ -2,12 +2,14 @@ package parser
 
 import (
 	"bytes"
-	"fmt"
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/robovarga/szlh-delegations/internal/scraper"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/robovarga/szlh-delegations/internal/entity"
 	"github.com/robovarga/szlh-delegations/internal/repository"
@@ -20,26 +22,45 @@ var reMatchDate = regexp.MustCompile(`(?m)([0-9]{2}\.[0-9]{2}\.[0-9]{4})`)
 type Parser struct {
 	referees *repository.RefereesRepository
 	games    *repository.GamesRepository
+	lists    *repository.ListRepository
+	logger   *logrus.Logger
 }
 
-func NewParser(referees *repository.RefereesRepository, games *repository.GamesRepository) *Parser {
-	return &Parser{referees: referees, games: games}
+func NewParser(referees *repository.RefereesRepository,
+	games *repository.GamesRepository,
+	lists *repository.ListRepository,
+	logger *logrus.Logger) *Parser {
+
+	return &Parser{
+		referees: referees,
+		games:    games,
+		lists:    lists,
+		logger:   logger,
+	}
 }
 
-func (p *Parser) Parse(body []byte) (games []*entity.Game) {
+func (p *Parser) Parse(listID int, body []byte) (games []*entity.Game) {
 
-	log.Println("start parsing body")
+	p.logger.Debug("start parsing body")
 
 	data := bytes.NewReader(body)
-
 	doc, err := goquery.NewDocumentFromReader(data)
 	if err != nil {
-		fmt.Println("No url found")
-		log.Fatal(err)
+		p.logger.Error(err)
+	}
+
+	list, err := p.lists.FindByID(listID)
+	if err != nil {
+		p.logger.Error(err)
+		return
+	}
+	if list == nil {
+		list = entity.NewList(listID, "Jolaus", scraper.ListsURL+strconv.Itoa(listID))
 	}
 
 	doc.Find("table").Each(func(index int, tablehtml *goquery.Selection) {
 		game := entity.NewGame()
+		game.SetList(list)
 
 		heading := tablehtml.Prev()
 		gameDate := reMatchDate.FindString(heading.Text())
@@ -49,7 +70,7 @@ func (p *Parser) Parse(body []byte) (games []*entity.Game) {
 				if columnHtml.Index() == 0 {
 					gameID, err := strconv.Atoi(columnHtml.Text())
 					if err != nil {
-						log.Println(err)
+						p.logger.Error(err)
 					}
 
 					game.SetExternalID(gameID)
@@ -67,12 +88,12 @@ func (p *Parser) Parse(body []byte) (games []*entity.Game) {
 
 					timezone, err := time.LoadLocation("Europe/Warsaw")
 					if err != nil {
-						log.Println("ERROR:", err)
+						p.logger.Error("ERROR:", err)
 					}
 
 					gameDate, err := time.ParseInLocation("02.01.2006 15:04", gameDate+" "+strings.TrimSpace(infos[0]), timezone)
 					if err != nil {
-						log.Println("ERROR:", err)
+						p.logger.Error("ERROR:", err)
 					}
 
 					game.SetDate(gameDate)
@@ -90,12 +111,12 @@ func (p *Parser) Parse(body []byte) (games []*entity.Game) {
 
 		})
 
-		log.Println("Parsed Game:", game.ExternalID())
+		p.logger.Debug("Parsed Game:", game.ExternalID())
 
 		games = append(games, game)
 	})
 
-	log.Println("finish parsing body")
+	p.logger.Debug("finish parsing body")
 
 	return games
 }

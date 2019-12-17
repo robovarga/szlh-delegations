@@ -5,6 +5,7 @@ package internal
 import (
 	"github.com/go-chi/chi"
 	"github.com/google/wire"
+	"github.com/sirupsen/logrus"
 
 	"github.com/robovarga/szlh-delegations/internal/config"
 	"github.com/robovarga/szlh-delegations/internal/parser"
@@ -13,11 +14,12 @@ import (
 	"github.com/robovarga/szlh-delegations/internal/server"
 )
 
-func InitializeApp(dbConfig *config.DatabaseConfig) (*server.Server, error) {
+func InitializeApp(dbConfig *config.DatabaseConfig, logger *logrus.Logger) (*server.Server, error) {
 	panic(wire.Build(
 		repository.NewDBConnection,
 		repository.NewRefereesRepository,
 		repository.NewGamesRepository,
+		repository.NewListRepository,
 		parser.NewParser,
 		scraper.NewScraper,
 		server.NewServer,
