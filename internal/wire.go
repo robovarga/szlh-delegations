@@ -26,12 +26,15 @@ func InitializeApp(dbConfig *config.DatabaseConfig, logger *logrus.Logger) (*ser
 	))
 }
 
-func InitializeWeb(dbConfig *config.DatabaseConfig) (*server.WebServer, error) {
+func InitializeWeb(dbConfig *config.DatabaseConfig, logger *logrus.Logger) (*server.WebServer, error) {
 	panic(wire.Build(
 		chi.NewRouter,
 		repository.NewDBConnection,
 		repository.NewGamesRepository,
+		repository.NewListRepository,
 		server.NewHealthCheckHandler,
+		server.NewListsHandler,
+		server.NewGamesHandler,
 		server.NewWebServer,
 	))
 }

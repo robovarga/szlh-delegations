@@ -7,8 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/robovarga/szlh-delegations/internal/scraper"
-
 	"github.com/sirupsen/logrus"
 
 	"github.com/robovarga/szlh-delegations/internal/entity"
@@ -39,7 +37,7 @@ func NewParser(referees *repository.RefereesRepository,
 	}
 }
 
-func (p *Parser) Parse(listID int, body []byte) (games []*entity.Game) {
+func (p *Parser) Parse(list *entity.List, body []byte) (games []*entity.Game) {
 
 	p.logger.Debug("start parsing body")
 
@@ -49,17 +47,8 @@ func (p *Parser) Parse(listID int, body []byte) (games []*entity.Game) {
 		p.logger.Error(err)
 	}
 
-	list, err := p.lists.FindByID(listID)
-	if err != nil {
-		p.logger.Error(err)
-		return
-	}
-	if list == nil {
-		list = entity.NewList(listID, "Jolaus", scraper.ListsURL+strconv.Itoa(listID))
-	}
-
 	doc.Find("table").Each(func(index int, tablehtml *goquery.Selection) {
-		game := entity.NewGame()
+		game := entity.GenerateGame()
 		game.SetList(list)
 
 		heading := tablehtml.Prev()

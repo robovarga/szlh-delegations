@@ -13,40 +13,58 @@ import (
 const listID = 208
 
 type Server struct {
-	scraper *scraper.Scraper
-	parser  *parser.Parser
-	games   *repository.GamesRepository
-	logger  *logrus.Logger
+	scraper   *scraper.Scraper
+	parser    *parser.Parser
+	gamesRepo *repository.GamesRepository
+	listsRepo *repository.ListRepository
+	logger    *logrus.Logger
 }
 
 func NewServer(scraper *scraper.Scraper,
 	parser *parser.Parser,
 	gamesRepository *repository.GamesRepository,
+	listRepository *repository.ListRepository,
 	logger *logrus.Logger) *Server {
 
 	return &Server{
-		scraper,
-		parser,
-		gamesRepository,
-		logger,
+		scraper:   scraper,
+		parser:    parser,
+		gamesRepo: gamesRepository,
+		listsRepo: listRepository,
+		logger:    logger,
 	}
 }
 
 func (s *Server) Handle() error {
 
+	lists, err := s.listsRepo.GetLists()
+	if err != nil {
+		return err
+	}
+
 	s.logger.Println("Start fetching")
 
-	data, err := s.scraper.Scrape(listID)
+	data, err := s.scraper.Scrape(lists[0])
 	if err != nil {
 		return err
 	}
 
 	s.logger.Println("Finish Fetching")
 
-	games := s.parser.Parse(listID, data)
+	games := s.parser.Parse(lists[0], data)
 
 	for _, game := range games {
-		err = s.games.Insert(game)
+		gameExists, err := s.gamesRepo.CheckGame(game.ExternalID(), game.List().ListID())
+		if err != nil {
+			return err
+		}
+
+		if gameExists {
+			err = s.gamesRepo.Update(game)
+		} else {
+			err = s.gamesRepo.Insert(game)
+		}
+
 		if err != nil {
 			return err
 		}

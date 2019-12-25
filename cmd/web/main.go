@@ -24,13 +24,8 @@ func main() {
 
 	log.Println("Loaded ENV Driver:", dbDriver)
 
-	var (
-	// logLevel, _  = 5
-	// loggerConfig = config.NewLoggerConfig(sentryDSN, environment, release, logrus.Level(logLevel))
-	)
-
-	// log := logger.NewLogger(loggerConfig)
-	srv, err := internal.InitializeWeb(databaseConfig)
+	log := config.NewLogger()
+	srv, err := internal.InitializeWeb(databaseConfig, log)
 	if err != nil {
 		log.Fatal(err)
 	}

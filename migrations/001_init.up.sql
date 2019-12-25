@@ -14,6 +14,8 @@ CREATE TABLE `games` (
   `away_team` varchar(100) DEFAULT NULL,
   `venue` varchar(50) DEFAULT NULL,
   `game_date` datetime DEFAULT NULL,
+  `date_add` datetime NULL,
+  `date_update` datetime NULL,
 
   KEY `list_id` (`list_id`), CONSTRAINT `games_ibfk_1` FOREIGN KEY (`list_id`) REFERENCES `delegation_list` (`list_id`) ON DELETE CASCADE
 )

@@ -3,12 +3,13 @@ package scraper
 import (
 	"io/ioutil"
 	"net/http"
-	"strconv"
+
+	"github.com/robovarga/szlh-delegations/internal/entity"
 
 	"github.com/sirupsen/logrus"
 )
 
-const ListsURL = "http://www.hockeyslovakia.sk/sk/stats/delegation-lists/"
+const ListsURL = "http://www.hockeyslovakia.sk/"
 
 type Scraper struct {
 	logger *logrus.Logger
@@ -20,9 +21,9 @@ func NewScraper(logger *logrus.Logger) *Scraper {
 	}
 }
 
-func (s *Scraper) Scrape(listID int) ([]byte, error) {
+func (s *Scraper) Scrape(list *entity.List) ([]byte, error) {
 	client := http.Client{}
-	resp, err := client.Get(ListsURL + strconv.Itoa(listID))
+	resp, err := client.Get(ListsURL + list.ListURL())
 	if err != nil {
 		s.logger.Fatal(err)
 	}

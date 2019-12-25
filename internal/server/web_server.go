@@ -23,11 +23,15 @@ type WebServer struct {
 func NewWebServer(
 	router *chi.Mux,
 	healthchecker *HealthCheckHandler,
+	listsHandler *ListsHandler,
+	gamesHandler *GamesHandler,
 	gamesRepository *repository.GamesRepository) *WebServer {
 
-	router.Use(middleware.RequestID)
+	router.Use(middleware.RequestID, middleware.Heartbeat("/ping"))
 
-	router.Method(http.MethodGet, "/", healthchecker)
+	router.Method(http.MethodGet, "/lists", listsHandler)
+	router.Method(http.MethodGet, "/games/{id:[0-9]+}", gamesHandler)
+
 	router.Method(http.MethodGet, "/healthz", healthchecker)
 
 	// router.Group(func(r chi.Router) {

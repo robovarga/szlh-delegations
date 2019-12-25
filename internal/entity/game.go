@@ -17,7 +17,27 @@ type Game struct {
 	referees   []*Referee
 }
 
-func NewGame() *Game {
+func NewGame(gameID uuid.UUID,
+	externalID int,
+	listID *List,
+	home, away, venue string,
+	date time.Time,
+	// referees []*Referee,
+) *Game {
+
+	return &Game{
+		gameID:     gameID,
+		externalID: externalID,
+		listID:     listID,
+		home:       home,
+		away:       away,
+		venue:      venue,
+		date:       date,
+		// referees:   referees,
+	}
+}
+
+func GenerateGame() *Game {
 	return &Game{
 		gameID: uuid.NewV1(),
 	}
