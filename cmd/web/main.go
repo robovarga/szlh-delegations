@@ -23,7 +23,6 @@ func main() {
 	log := config.NewLogger()
 
 	log.Info("Loaded ENV Driver:", dbDriver)
-	log.Info(dbURI)
 
 	srv, err := internal.InitializeWeb(databaseConfig, log)
 	if err != nil {
