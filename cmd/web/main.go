@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"os"
 	"os/signal"
 	"sync"
@@ -21,10 +20,11 @@ func main() {
 		dbURI          = os.Getenv("DATABASE_URL")
 		databaseConfig = config.NewPostgresConfig(dbDriver, dbURI)
 	)
-
-	log.Println("Loaded ENV Driver:", dbDriver)
-
 	log := config.NewLogger()
+
+	log.Info("Loaded ENV Driver:", dbDriver)
+	log.Info(dbURI)
+
 	srv, err := internal.InitializeWeb(databaseConfig, log)
 	if err != nil {
 		log.Fatal(err)
