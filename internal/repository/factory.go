@@ -10,7 +10,7 @@ import (
 )
 
 func NewDBConnection(conf *config.DatabaseConfig) (*sql.DB, error) {
-	db, err := sql.Open(conf.DriverName, conf.DatabaseURI+"?parseTime=true")
+	db, err := sql.Open(conf.DriverName, conf.DatabaseURI+"&parseTime=true")
 
 	if err != nil {
 		return nil, fmt.Errorf("can't connect to db: %s", err)
