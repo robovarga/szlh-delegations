@@ -2,11 +2,11 @@ package server
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/robovarga/szlh-delegations/internal/repository"
 
@@ -17,11 +17,13 @@ import (
 
 type WebServer struct {
 	router *chi.Mux
+	logger *logrus.Logger
 	games  *repository.GamesRepository
 }
 
 func NewWebServer(
 	router *chi.Mux,
+	logger *logrus.Logger,
 	healthchecker *HealthCheckHandler,
 	listsHandler *ListsHandler,
 	gamesHandler *GamesHandler,
@@ -55,13 +57,14 @@ func NewWebServer(
 	return &WebServer{
 		router: router,
 		games:  gamesRepository,
+		logger: logger,
 	}
 }
 
 func (s *WebServer) Serve(ctx context.Context) {
 	port := os.Getenv("PORT")
 	if port == "" {
-		log.Panic(fmt.Errorf("$PORT not set"))
+		s.logger.Fatal("$PORT not set")
 	}
 
 	srv := &http.Server{
@@ -75,17 +78,14 @@ func (s *WebServer) Serve(ctx context.Context) {
 	go func() {
 		<-ctx.Done()
 		if err := srv.Shutdown(context.Background()); err != nil {
-			// s.logger.Error(err)
-			log.Panic(err)
+			s.logger.Error(err)
 		}
 		close(done)
 	}()
 
-	// s.logger.Infof("serving API at port %s", srv.Addr)
-	log.Printf("serving API at port %s \n", srv.Addr)
+	s.logger.Infof("serving API at port %s", srv.Addr)
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-		// s.logger.Fatal(err)
-		log.Panic(err)
+		s.logger.Fatal(err)
 	}
 
 	<-done
