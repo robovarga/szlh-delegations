@@ -54,12 +54,14 @@ func (s *Server) Handle() error {
 	games := s.parser.Parse(lists[0], data)
 
 	for _, game := range games {
-		gameExists, err := s.gamesRepo.CheckGame(game.ExternalID(), game.List().ListID())
+		gameID, gameUUID, err := s.gamesRepo.CheckGame(game.ExternalID(), game.List().ListID())
 		if err != nil {
 			return err
 		}
 
-		if gameExists {
+		if gameID > 0 {
+			game.SetID(gameID)
+			game.SetUUID(gameUUID)
 			err = s.gamesRepo.Update(game)
 		} else {
 			err = s.gamesRepo.Insert(game)

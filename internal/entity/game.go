@@ -7,7 +7,8 @@ import (
 )
 
 type Game struct {
-	gameID     uuid.UUID
+	gameID     int
+	gameUUID   uuid.UUID
 	externalID int
 	listID     *List
 	home       string
@@ -17,7 +18,8 @@ type Game struct {
 	referees   []*Referee
 }
 
-func NewGame(gameID uuid.UUID,
+func NewGame(gameID int,
+	gameUUID uuid.UUID,
 	externalID int,
 	listID *List,
 	home, away, venue string,
@@ -27,6 +29,7 @@ func NewGame(gameID uuid.UUID,
 
 	return &Game{
 		gameID:     gameID,
+		gameUUID:   gameUUID,
 		externalID: externalID,
 		listID:     listID,
 		home:       home,
@@ -39,12 +42,24 @@ func NewGame(gameID uuid.UUID,
 
 func GenerateGame() *Game {
 	return &Game{
-		gameID: uuid.NewV1(),
+		gameUUID: uuid.NewV1(),
 	}
 }
 
-func (g *Game) ID() uuid.UUID {
+func (g *Game) UUID() uuid.UUID {
+	return g.gameUUID
+}
+
+func (g *Game) SetUUID(gameUUID uuid.UUID) {
+	g.gameUUID = gameUUID
+}
+
+func (g *Game) ID() int {
 	return g.gameID
+}
+
+func (g *Game) SetID(gameID int) {
+	g.gameID = gameID
 }
 
 func (g *Game) Date() time.Time {
@@ -93,4 +108,12 @@ func (g *Game) List() *List {
 
 func (g *Game) SetList(listID *List) {
 	g.listID = listID
+}
+
+func (g *Game) AddReferee(referee *Referee) {
+	g.referees = append(g.referees, referee)
+}
+
+func (g *Game) Referees() []*Referee {
+	return g.referees
 }

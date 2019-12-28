@@ -8,6 +8,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/robovarga/szlh-delegations/internal/handler"
 	"github.com/robovarga/szlh-delegations/internal/repository"
 
 	"github.com/go-chi/chi"
@@ -24,35 +25,26 @@ type WebServer struct {
 func NewWebServer(
 	router *chi.Mux,
 	logger *logrus.Logger,
-	healthchecker *HealthCheckHandler,
-	listsHandler *ListsHandler,
-	gamesHandler *GamesHandler,
+	healthchecker *handler.HealthCheckHandler,
+	listsHandler *handler.ListsHandler,
+	gamesHandler *handler.GamesHandler,
+	refsHandler *handler.RefereesHandler,
 	gamesRepository *repository.GamesRepository) *WebServer {
 
-	router.Use(middleware.RequestID, middleware.Heartbeat("/ping"))
-
-	router.Method(http.MethodGet, "/lists", listsHandler)
-	router.Method(http.MethodGet, "/games/{id:[0-9]+}", gamesHandler)
+	router.Use(middleware.RequestID)
 
 	router.Method(http.MethodGet, "/healthz", healthchecker)
 
-	// router.Group(func(r chi.Router) {
-	// 	r.Use(chitrc.Middleware(
-	// 		chitrc.WithServiceName("notifier.state-updater"),
-	// 		chitrc.WithSpanOptions(tracer.Tag("transport", "json")),
-	// 	))
-	// 	router.Handle("/status/*", updateState)
-	// })
-	//
-	// router.Group(func(r chi.Router) {
-	// 	r.Use(chitrc.Middleware(
-	// 		chitrc.WithServiceName("notifier.notifications"),
-	// 		chitrc.WithSpanOptions(tracer.Tag("transport", "json")),
-	// 	))
-	// 	r.Use(factory.middlewares()...)
-	// 	r.Method(http.MethodPost, "/notification/send", notifier)
-	// 	r.Method(http.MethodGet, "/notification/messages", messageStatus)
-	// })
+	router.Method(http.MethodGet, "/lists", listsHandler)
+
+	router.Method(http.MethodGet, "/games", gamesHandler)
+	router.Method(http.MethodGet, "/games/{id:[0-9]+}", gamesHandler)
+
+	router.Route("/referees", func(r chi.Router) {
+		r.Get("/", refsHandler.GetAll)
+
+		r.Get("/{refId:[0-9]+}", refsHandler.GetReferee)
+	})
 
 	return &WebServer{
 		router: router,

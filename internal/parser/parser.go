@@ -18,19 +18,19 @@ import (
 var reMatchDate = regexp.MustCompile(`(?m)([0-9]{2}\.[0-9]{2}\.[0-9]{4})`)
 
 type Parser struct {
-	referees *repository.RefereesRepository
 	games    *repository.GamesRepository
 	lists    *repository.ListRepository
+	refsRepo *repository.RefereesRepository
 	logger   *logrus.Logger
 }
 
-func NewParser(referees *repository.RefereesRepository,
-	games *repository.GamesRepository,
+func NewParser(games *repository.GamesRepository,
 	lists *repository.ListRepository,
+	refsRepo *repository.RefereesRepository,
 	logger *logrus.Logger) *Parser {
 
 	return &Parser{
-		referees: referees,
+		refsRepo: refsRepo,
 		games:    games,
 		lists:    lists,
 		logger:   logger,
@@ -45,6 +45,7 @@ func (p *Parser) Parse(list *entity.List, body []byte) (games []*entity.Game) {
 	doc, err := goquery.NewDocumentFromReader(data)
 	if err != nil {
 		p.logger.Error(err)
+		return nil
 	}
 
 	doc.Find("table").Each(func(index int, tablehtml *goquery.Selection) {
@@ -91,7 +92,22 @@ func (p *Parser) Parse(list *entity.List, body []byte) (games []*entity.Game) {
 
 					columnHtml.Find("span").Each(func(i int, refereeSpan *goquery.Selection) {
 
-						// fmt.Println(refereeSpan.Text())
+						refereeName := strings.TrimSpace(refereeSpan.Text())
+						ref, err := p.refsRepo.FindByName(refereeName)
+						if err != nil {
+							p.logger.Errorf("Couldn't find referee with name '%s'", refereeName)
+							return
+						}
+
+						if ref == nil {
+							ref, err = p.refsRepo.InsertRef(refereeName)
+							if err != nil {
+								p.logger.Error(err)
+								return
+							}
+						}
+
+						game.AddReferee(ref)
 
 					})
 

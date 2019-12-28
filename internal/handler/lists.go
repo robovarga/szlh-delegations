@@ -1,11 +1,11 @@
-package server
+package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/robovarga/szlh-delegations/internal/handler/response"
 	"github.com/robovarga/szlh-delegations/internal/repository"
 )
 
@@ -25,31 +25,21 @@ func NewListsHandler(listRepository *repository.ListRepository,
 func (h *ListsHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	lists, err := h.listRepo.GetLists()
 	if err != nil {
-		h.logger.Error(err)
+		response.InternalError(w, h.logger, err)
+		return
 	}
 
-	var responseRaw []listsResponse
+	var responseRaw []*response.List
 
 	for _, list := range lists {
 		responseRaw = append(
 			responseRaw,
-			listsResponse{
+			&response.List{
 				ID:   list.ListID(),
 				Name: list.Name(),
 			},
 		)
 	}
 
-	response, err := json.Marshal(responseRaw)
-	if err != nil {
-		h.logger.Error(err)
-	}
-
-	w.WriteHeader(200)
-	_, _ = w.Write(response)
-}
-
-type listsResponse struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	response.Success(w, responseRaw)
 }
