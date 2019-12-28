@@ -35,14 +35,9 @@ type Error struct {
 }
 
 func Success(w http.ResponseWriter, body interface{}) {
-	res, err := json.Marshal(body)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(res)
+	_ = json.NewEncoder(w).Encode(body)
 }
 
 func InternalError(w http.ResponseWriter, log *logrus.Logger, err error) {
