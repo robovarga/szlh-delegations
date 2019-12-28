@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/robovarga/szlh-delegations/internal/config"
+	"github.com/robovarga/szlh-delegations/internal/handler"
 	"github.com/robovarga/szlh-delegations/internal/parser"
 	"github.com/robovarga/szlh-delegations/internal/repository"
 	"github.com/robovarga/szlh-delegations/internal/scraper"
@@ -32,9 +33,11 @@ func InitializeWeb(dbConfig *config.DatabaseConfig, logger *logrus.Logger) (*ser
 		repository.NewDBConnection,
 		repository.NewGamesRepository,
 		repository.NewListRepository,
-		server.NewHealthCheckHandler,
-		server.NewListsHandler,
-		server.NewGamesHandler,
+		repository.NewRefereesRepository,
+		handler.NewHealthCheckHandler,
+		handler.NewListsHandler,
+		handler.NewRefereesHandler,
+		handler.NewGamesHandler,
 		server.NewWebServer,
 	))
 }

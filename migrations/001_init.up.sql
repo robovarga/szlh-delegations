@@ -7,7 +7,9 @@ CREATE TABLE `delegation_list` (
 );
 
 CREATE TABLE `games` (
-  `game_id` varbinary(50) NOT NULL,
+--   `game_id` varbinary(50) NOT NULL PRIMARY KEY,
+  `game_id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `game_uuid` binary(16) NOT NULL,
   `external_id` int(11) NOT NULL,
   `list_id` int(10) unsigned NOT NULL,
   `home_team` varchar(100) DEFAULT NULL,
@@ -17,5 +19,5 @@ CREATE TABLE `games` (
   `date_add` datetime NULL,
   `date_update` datetime NULL,
 
-  KEY `list_id` (`list_id`), CONSTRAINT `games_ibfk_1` FOREIGN KEY (`list_id`) REFERENCES `delegation_list` (`list_id`) ON DELETE CASCADE
-)
+  FOREIGN KEY (`list_id`) REFERENCES `delegation_list` (`list_id`) ON DELETE CASCADE
+);

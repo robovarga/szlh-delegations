@@ -1,14 +1,14 @@
-package server
+package handler
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
 	"github.com/go-chi/chi"
-
-	"github.com/robovarga/szlh-delegations/internal/repository"
 	"github.com/sirupsen/logrus"
+
+	"github.com/robovarga/szlh-delegations/internal/handler/response"
+	"github.com/robovarga/szlh-delegations/internal/repository"
 )
 
 type GamesHandler struct {
@@ -29,42 +29,40 @@ func (h *GamesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	listID, err := strconv.Atoi(listIDRaw)
 	if err != nil {
-		h.logger.Error(err)
+		response.InternalError(w, h.logger, err)
+		return
 	}
 
 	games, err := h.gameRepo.FindByListID(listID)
 	if err != nil {
-		h.logger.Error(err)
+		response.InternalError(w, h.logger, err)
+		return
 	}
 
-	var responseRaw []gameResponse
+	var responseRaw []*response.Game
 
 	for _, game := range games {
+
+		var refs []*response.Referee
+		for _, ref := range game.Referees() {
+			refs = append(refs, &response.Referee{
+				RefID: ref.ID(),
+				Name:  ref.Name(),
+			})
+		}
+
 		responseRaw = append(
 			responseRaw,
-			gameResponse{
-				GameID:     game.ID().String(),
+			&response.Game{
+				GameUUID:   game.UUID().String(),
 				ExternalID: game.ExternalID(),
 				Home:       game.Home(),
 				Away:       game.Away(),
 				GameDate:   game.Date().String(),
+				Referees:   refs,
 			},
 		)
 	}
 
-	response, err := json.Marshal(responseRaw)
-	if err != nil {
-		h.logger.Error(err)
-	}
-
-	w.WriteHeader(200)
-	_, _ = w.Write(response)
-}
-
-type gameResponse struct {
-	GameID     string `json:"game_id"`
-	ExternalID int    `json:"external_id"`
-	Home       string `json:"home"`
-	Away       string `json:"away"`
-	GameDate   string `json:"game_date"`
+	response.Success(w, responseRaw)
 }
