@@ -24,8 +24,8 @@ func NewGamesHandler(gamesRepository *repository.GamesRepository,
 	}
 }
 
-func (h *GamesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	listIDRaw := chi.URLParam(r, "id")
+func (h *GamesHandler) GetByListID(w http.ResponseWriter, r *http.Request) {
+	listIDRaw := chi.URLParam(r, "listId")
 
 	listID, err := strconv.Atoi(listIDRaw)
 	if err != nil {

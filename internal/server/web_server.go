@@ -37,8 +37,11 @@ func NewWebServer(
 
 	router.Method(http.MethodGet, "/lists", listsHandler)
 
-	router.Method(http.MethodGet, "/games", gamesHandler)
-	router.Method(http.MethodGet, "/games/{id:[0-9]+}", gamesHandler)
+	router.Route("/games", func(r chi.Router) {
+		r.Get("/{listId:[0-9]+}", gamesHandler.GetByListID)
+
+		// r.Get("/{refId:[0-9]+}", refsHandler.GetReferee)
+	})
 
 	router.Route("/referees", func(r chi.Router) {
 		r.Get("/", refsHandler.GetAll)
