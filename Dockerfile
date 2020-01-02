@@ -41,6 +41,7 @@ COPY --from=goland_builder /usr/local/bin/parser .
 RUN chmod +x ./api
 
 COPY --from=node_builder /build ./web
+RUN chmod +x ./web
 
 EXPOSE $PORT
 
