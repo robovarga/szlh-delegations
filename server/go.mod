@@ -5,7 +5,7 @@ go 1.12
 require (
 	github.com/PuerkitoBio/goquery v1.5.0
 	github.com/certifi/gocertifi v0.0.0-20191021191039-0944d244cd40 // indirect
-	github.com/evalphobia/logrus_sentry v0.8.2
+	github.com/evalphobia/logrus_sentry v0.8.2 // indirect
 	github.com/getsentry/raven-go v0.2.0 // indirect
 	github.com/go-chi/chi v4.0.2+incompatible
 	github.com/go-sql-driver/mysql v1.4.1

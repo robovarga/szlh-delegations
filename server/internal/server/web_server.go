@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -57,10 +56,12 @@ func NewWebServer(
 }
 
 func (s *WebServer) Serve(ctx context.Context) {
-	port := os.Getenv("PORT")
-	if port == "" {
-		s.logger.Fatal("$PORT not set")
-	}
+	// port := os.Getenv("PORT")
+	// if port == "" {
+	// 	s.logger.Fatal("$PORT not set")
+	// }
+
+	port := "90"
 
 	srv := &http.Server{
 		Addr:        ":" + port,
