@@ -1,6 +1,6 @@
 FROM golang:1.12-alpine AS goland_builder
 
-RUN apk --no-cache add ca-certificates git
+RUN apk --no-cache add git
 
 ENV CGO_ENABLED 0
 ENV GOBIN /usr/local/bin/
@@ -35,11 +35,13 @@ ENV TZ=Europe/Warsaw
 RUN rm -rf /var/cache/apk/*
 
 RUN apk --no-cache add ca-certificates
-#COPY --from=goland_builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
 COPY --from=goland_builder /usr/local/bin/api .
 COPY --from=goland_builder /usr/local/bin/parser .
+RUN chmod +x ./api
 
 COPY --from=node_builder /build ./web
-RUN chmod +x ./api
+
 EXPOSE 8080
-CMD ./api
+
+CMD ["./api"]
