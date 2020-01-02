@@ -2,20 +2,15 @@ import React, { Component } from "react";
 import axios from "axios";
 
 class PingComponent extends Component {
-    constructor() {
-        super();
-        this.state = {
-            pong: "pending"
-        };
-    }
+    state = {
+        delegationLists: []
+    };
 
     componentWillMount() {
         axios
-            .get("api/ping")
-            .then(response => {
-                this.setState(() => {
-                    return { pong: response.data.message };
-                });
+            .get("lists")
+            .then(res => {
+                this.setState({ delegationLists: res.data });
             })
             .catch(function(error) {
                 console.log(error);
@@ -23,7 +18,13 @@ class PingComponent extends Component {
     }
 
     render() {
-        return <h1>Ping {this.state.pong}</h1>;
+        return (
+            <ul>
+                {this.state.delegationLists.map(list => (
+                    <li>{list.name}</li>
+                ))}
+            </ul>
+        );
     }
 }
 
