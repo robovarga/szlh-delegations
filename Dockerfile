@@ -7,10 +7,10 @@ ENV GOBIN /usr/local/bin/
 
 WORKDIR /app
 
-ADD ./cmd ./cmd
-ADD ./internal ./internal
-ADD ./go.mod .
-ADD ./go.sum .
+ADD ./server/cmd ./cmd
+ADD ./server/internal ./internal
+ADD ./server/go.mod .
+ADD ./server/go.sum .
 
 RUN go mod vendor
 

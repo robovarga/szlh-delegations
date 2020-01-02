@@ -13,7 +13,7 @@ build:
 	docker build -t delegacky .
 
 wire:
-	wire ./internal
+	wire ./server/internal
 
 local:
 	docker rm szlh-dlg --force
