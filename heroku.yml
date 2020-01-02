@@ -3,4 +3,3 @@ build:
     web: Dockerfile
     worker:
       dockerfile: Dockerfile
-      target: goland_builder

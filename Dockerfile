@@ -42,6 +42,6 @@ RUN chmod +x ./api
 
 COPY --from=node_builder /build ./web
 
-EXPOSE 8080
+EXPOSE $PORT
 
-CMD ["./api"]
+CMD ["./web"]
