@@ -61,7 +61,7 @@ func (s *WebServer) Serve(ctx context.Context) {
 	// 	s.logger.Fatal("$PORT not set")
 	// }
 
-	port := "90"
+	port := "8080"
 
 	srv := &http.Server{
 		Addr:        ":" + port,
