@@ -3,3 +3,5 @@ build:
     web: Dockerfile
     api:
       dockerfile: Dockerfile
+run:
+  web: ./web
