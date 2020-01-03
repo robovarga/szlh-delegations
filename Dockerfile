@@ -44,4 +44,4 @@ COPY --from=node_builder /build ./web
 
 EXPOSE 8080
 
-CMD ["./api"]
+CMD ./api
