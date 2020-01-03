@@ -4,4 +4,4 @@ build:
     api:
       dockerfile: Dockerfile
 run:
-  web: ./web
+  api: ./api
